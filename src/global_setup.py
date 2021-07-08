@@ -45,10 +45,9 @@ class Images():
     def __init__(self) -> None:
         self.titleImg = ImageTk.PhotoImage(Image.open(picsPath + "/woodPaint5.jpg"))
     
-images = Images()
 
 class Menu():
-    def __init__(self) -> None:
+    def __init__(self, images) -> None:
         #Create a frame
         self.frame = tk.Frame(root, bg=darkish, padx = 0, pady=10)
         #create a label that holds the picture
@@ -96,7 +95,6 @@ class Menu():
         self.imgLabel.pack(pady=0, padx=0)
 
         
-menu = Menu()
 
 '''
 pygame.init()

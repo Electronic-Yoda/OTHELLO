@@ -34,15 +34,13 @@ def main():
     programOn = True
     menuOn = True
 
+    images = Images()
+    menu = Menu(images)
     menu.drawMenu()
     
     
     root.mainloop()
-    '''
-    while programOn:
-       if menuOn:
-           menuLoop()
-    '''       
+    
 
 
     # Close the window and quit.
