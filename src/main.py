@@ -1,50 +1,26 @@
 import pygame
 import tkinter as tk
 import math
-from global_setup import *
-
-
-
-
-def menuLoop():
-    global menuOn, programOn, GameTitle
-    
-    '''screen.fill(BLACK)
-    screen.blit(GameTitle, [120, 0])
-    pygame.display.flip() '''
-    while programOn and menuOn:
-        pass
-
-
-
-
-
-
-def drawMenu():
-    label = tk.Label(text="Python rocks!")
-    label.pack()
-
+from UI import *
 
 
 # -------- Main Program -----------
 def main():
 
-    
-    global programOn, menuOn
-    programOn = True
-    menuOn = True
-
+    # Create an images object storing images from the subdirectory
     images = Images()
-    menu = Menu(images)
-    menu.drawMenu()
+    # create UI objects
+    menu_ui = MenuUI(images)
+    game_ui = GameUI(images)
+
+    # Draw menu and pass in game_ui so that the menu buttons, when clicked, will call game_ui methods
+    menu_ui.drawAndReact(game_ui) 
     
     
     root.mainloop()
     
 
 
-    # Close the window and quit.
-    # pygame.quit()
 
 if __name__ == "__main__":
     main()
