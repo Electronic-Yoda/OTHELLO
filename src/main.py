@@ -1,7 +1,7 @@
 import pygame
 import tkinter as tk
 import math
-from UI import *
+from GUI import *
 
 
 # -------- Main Program -----------
@@ -13,8 +13,13 @@ def main():
     menu_ui = MenuUI(images)
     game_ui = GameUI(images)
 
-    # Draw menu and pass in game_ui so that the menu buttons, when clicked, will call game_ui methods
-    menu_ui.drawAndReact(game_ui) 
+    # Make objects point to each other
+    menu_ui.game_ui = game_ui
+    game_ui.menu_ui = menu_ui
+    
+
+    # Draw menu 
+    menu_ui.drawAndReact() 
     
     
     root.mainloop()

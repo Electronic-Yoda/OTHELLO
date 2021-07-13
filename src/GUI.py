@@ -50,27 +50,29 @@ class MenuUI():
         self.frame = tk.Frame(root, bg=darkish, padx = 0, pady=10)
         #create a label that holds the picture
         self.imgLabel = tk.Label(root, image=images.woodImage, borderwidth=0, highlightthickness=0)
-    
+        # Create empty game UI
+        game_ui = None   
+
     def clearScreen(self):
         # Clear all the widgets in the frame
-        clear_frame(self.frame)
+            # clear_frame(self.frame) (Unnecessary here)
         # forgetting the frame (clears it from screen but reference to it is held)
         self.frame.pack_forget()
         # Clear the title picture
         self.imgLabel.pack_forget()
 
-    def PvCButtonReact(self, game_ui):
+    def PvCButtonReact(self):
         self.clearScreen()
-        game_ui.mode = "PVC"
-        game_ui.drawAndReact(self)
+        self.game_ui.mode = "PVC"
+        self.game_ui.drawAndReact()
     
-    def PvPButtonReact(self, game_ui):
+    def PvPButtonReact(self):
         self.clearScreen()
-        game_ui.mode = "PVP"
-        game_ui.drawAndReact(self)
+        self.game_ui.mode = "PVP"
+        self.game_ui.drawAndReact()
 
 
-    def drawAndReact(self, game_ui):
+    def drawAndReact(self):
         # Pack the frame to the left
         self.frame.pack(side="bottom", fill = "x", padx=0) # , expand=True, fill="both" '''
         
@@ -82,14 +84,14 @@ class MenuUI():
         PVC_text = """PLAYER V COMPUTER
         """
         button1 = tk.Button(self.frame, background=greyish, foreground='white',text= PVC_text, font=('Helvetica bold', 12),
-            width=25, pady=30, borderwidth=20, command=lambda:self.PvCButtonReact(game_ui))
+            width=25, pady=30, borderwidth=20, command=self.PvCButtonReact)
         button1.grid(row=0, column=0, padx=80)
         
         # Create button2
         PVP_text = """PLAYER V PLAYER
         """
         button2 = tk.Button(self.frame, background=greyish, foreground='white',text= PVP_text, font=('Helvetica bold', 12),
-            width=25, pady=30, borderwidth=20, command=lambda:self.PvPButtonReact(game_ui))
+            width=25, pady=30, borderwidth=20, command=self.PvPButtonReact)
         button2.grid(row=0, column=1, padx=32)
         
         # pack image from label
@@ -99,14 +101,28 @@ class GameUI:
     def __init__(self, images) -> None:
         self.mode = ""  
         self.background = images.woodImage2
+        self.menu_ui = None
         # Create canvas
         self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
     
+    def clearCanvas(self):
+        self.canvas.pack_forget()
+        self.menu_ui.drawAndReact()
+        
 
-    def drawAndReact(self, menu_ui):
+    def returnToMenu(self):
+        self.clearCanvas()
+        self.menu_ui
+        
+        
+
+    def drawAndReact(self):
         self.canvas.pack(fill="both", expand="True") 
-        # Set image in canvas
+        # Set image in canvas as background
         self.canvas.create_image(0, 0, image=self.background, anchor="nw")
+        # Add buttons
+        menuButton = tk.Button(root, text = "Menu", command=self.returnToMenu)
+        menuButtonWindow = self.canvas.create_window(10, 10, anchor="nw", window=menuButton)
 
         
 '''
