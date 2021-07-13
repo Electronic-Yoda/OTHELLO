@@ -1,7 +1,7 @@
 import pygame
 import tkinter as tk
 import math
-from GUI import *
+from gui import *
 
 
 # -------- Main Program -----------
