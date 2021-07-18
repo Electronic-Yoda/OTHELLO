@@ -1,17 +1,11 @@
 from tkinter.constants import ANCHOR, LEFT, RIGHT
-import pygame
 import math
 import sys, os
 import tkinter as tk
 from PIL import Image
 from PIL import ImageTk
 
-
-PI = math.pi
-
-
-
-
+# Global variables
 reddish = '#6E4137'
 yellowish = '#D1CFA6'
 blueish = '#274098'
@@ -20,6 +14,9 @@ darkish = '#17202A'
 greyish = '#A69E99'
 windowWidth = 800
 windowHeight = 800
+boardSize = 8
+
+# Creating the root (window)
 root = tk.Tk()
 root.title('OTHELLO')
 root.geometry(str(windowWidth) + "x" + str(windowHeight))
@@ -40,39 +37,54 @@ class Images():
         picsPath = OthelloAIPath + "\src\pics"
         # print("This is the pics path:", picsPath)
         picsPath = picsPath.replace("\\", "/") 
-
+    
         self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/woodPaint5.jpg"))
         self.woodImage2 = ImageTk.PhotoImage(Image.open(picsPath + "/wood2-3.jpg"))
+        
+        diskWidth = int (windowWidth/2/boardSize-8)
+        self.blackDisk = ImageTk.PhotoImage(Image.open(picsPath + "/blackCircle.png").resize((diskWidth,diskWidth)))
+        self.whiteDisk = ImageTk.PhotoImage(Image.open(picsPath + "/whiteCircle.png").resize((diskWidth,diskWidth)))
 
 class MenuUI():
     def __init__(self, images) -> None:
-        #Create a frame
-        self.frame = tk.Frame(root, bg=darkish, padx = 0, pady=10)
-        #create a label that holds the picture
-        self.imgLabel = tk.Label(root, image=images.woodImage, borderwidth=0, highlightthickness=0)
+        
+        self.images=images
+        
         # Create empty game UI
-        game_ui = None   
+        self.game_ui = None   
+
+        self.Frame = None
+        self.imgLabel = None
 
     def clearScreen(self):
         # Clear all the widgets in the frame
             # clear_frame(self.frame) (Unnecessary here)
-        # forgetting the frame (clears it from screen but reference to it is held)
-        self.frame.pack_forget()
-        # Clear the title picture
-        self.imgLabel.pack_forget()
+            # forgetting the frame (clears it from screen but reference to it is held)
+        # self.frame.pack_forget()
+            # Clear the title picture
+        # self.imgLabel.pack_forget()
+        
+        self.frame.destroy() 
+        self.imgLabel.destroy()
 
     def PvCButtonReact(self):
         self.clearScreen()
         self.game_ui.mode = "PVC"
-        self.game_ui.drawAndReact()
+        self.game_ui.initialSetup()
     
     def PvPButtonReact(self):
         self.clearScreen()
         self.game_ui.mode = "PVP"
-        self.game_ui.drawAndReact()
+        self.game_ui.initialSetup()
 
 
     def drawAndReact(self):
+        #Create a frame
+        self.frame = tk.Frame(root, bg=darkish, padx = 0, pady=10)
+        #create a label that holds the picture
+        self.imgLabel = tk.Label(root, image=self.images.woodImage, borderwidth=0, highlightthickness=0)
+
+
         # Pack the frame to the left
         self.frame.pack(side="bottom", fill = "x", padx=0) # , expand=True, fill="both" '''
         
@@ -100,19 +112,24 @@ class MenuUI():
 class GameUI:
     def __init__(self, images) -> None:
         self.mode = ""  
+        self.images = images
         self.background = images.woodImage2
         self.menu_ui = None
-        # Create canvas
-        self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
+     
+        
     
-    def clearCanvas(self):
-        self.canvas.pack_forget()
-        self.menu_ui.drawAndReact()
+    def deleteCanvas(self):
+
+        ''' The following also works
+        # self.canvas.pack_forget()
+        # self.canvas.delete()
+        '''
+        self.canvas.destroy()
         
 
     def returnToMenu(self):
-        self.clearCanvas()
-        self.menu_ui
+        self.deleteCanvas()
+        self.menu_ui.drawAndReact()
         
         
 
@@ -123,23 +140,28 @@ class GameUI:
         # Add buttons
         menuButton = tk.Button(root, text = "Menu", command=self.returnToMenu)
         menuButtonWindow = self.canvas.create_window(10, 10, anchor="nw", window=menuButton)
-
         
-'''
-pygame.init()
+        # Create frame for board
+        frame = tk.Frame(root, bg="black", width=windowWidth/2 + 10, height=windowWidth/2 + 10, highlightthickness=4, highlightbackground=greyish)
+        frameWindow = self.canvas.create_window(windowWidth/4 -5, windowHeight/4 -5, anchor="nw", window=frame)
+        
+        # Create Tiles and disks
+        tileSpacing = windowWidth/2/boardSize
+        tileWidth = tileSpacing - 4 
+        startPos = windowWidth/4 + tileWidth/2 + 2
+        
+        for i in range(boardSize):
+            for j in range(boardSize):
+                button = tk.Button(root, image=self.images.whiteDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                ButtonWindow = self.canvas.create_window(startPos + j*tileSpacing, startPos + i*tileSpacing, window=button)
+        
+        '''
+        testButton = tk.Button(root, image=self.images.blackDisk, bg='green', borderwidth=0, width=34, height = 34)
+        testButtonWindow = self.canvas.create_window(windowWidth/2, windowHeight/2,  window=testButton)
+        '''
 
-# generate screen
-screen = pygame.display.set_mode((screenWidth, screenHeight))
-
-pygame.display.set_caption("OTHELLO")'''
-
-# Used to manage how fast the screen updates
-# clock = pygame.time.Clock()
+    def initialSetup(self):
+        self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
+        self.drawAndReact()
 
 
-# Load background image
-   # replace the backslash with forward slash for image loading
-# print(picsPath)
-
-# GameTitle = pygame.image.load(picsPath + "/OthelloGameTitle501W.jpg").convert()
-# GameTitle = pygame.image.load('OthelloGameTitle.jpg')
