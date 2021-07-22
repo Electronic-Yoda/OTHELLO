@@ -38,12 +38,13 @@ class Images():
         # print("This is the pics path:", picsPath)
         picsPath = picsPath.replace("\\", "/") 
     
-        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/woodPaint5.jpg"))
+        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/menuBackgroundS2.jpg"))
         self.woodImage2 = ImageTk.PhotoImage(Image.open(picsPath + "/wood2-3.jpg"))
         
         diskWidth = int (windowWidth/2/boardSize-8)
         self.blackDisk = ImageTk.PhotoImage(Image.open(picsPath + "/blackCircle.png").resize((diskWidth,diskWidth)))
         self.whiteDisk = ImageTk.PhotoImage(Image.open(picsPath + "/whiteCircle.png").resize((diskWidth,diskWidth)))
+        self.emptyPNG = ImageTk.PhotoImage(Image.open(picsPath + "/empty.png").resize((diskWidth,diskWidth)))
 
 class MenuUI():
     def __init__(self, images) -> None:
@@ -69,13 +70,11 @@ class MenuUI():
 
     def PvCButtonReact(self):
         self.clearScreen()
-        self.game_ui.mode = "PVC"
-        self.game_ui.initialSetup()
+        self.game_ui.initialSetup("PVC")
     
     def PvPButtonReact(self):
         self.clearScreen()
-        self.game_ui.mode = "PVP"
-        self.game_ui.initialSetup()
+        self.game_ui.initialSetup("PVP")
 
 
     def drawAndReact(self):
@@ -95,14 +94,14 @@ class MenuUI():
         # Create button
         PVC_text = """PLAYER V COMPUTER
         """
-        button1 = tk.Button(self.frame, background=greyish, foreground='white',text= PVC_text, font=('Helvetica bold', 12),
+        button1 = tk.Button(self.frame, background=darkGreyish, foreground='white',text= PVC_text, font=('Helvetica bold', 12),
             width=25, pady=30, borderwidth=20, command=self.PvCButtonReact)
         button1.grid(row=0, column=0, padx=80)
         
         # Create button2
         PVP_text = """PLAYER V PLAYER
         """
-        button2 = tk.Button(self.frame, background=greyish, foreground='white',text= PVP_text, font=('Helvetica bold', 12),
+        button2 = tk.Button(self.frame, background=darkGreyish, foreground='white',text= PVP_text, font=('Helvetica bold', 12),
             width=25, pady=30, borderwidth=20, command=self.PvPButtonReact)
         button2.grid(row=0, column=1, padx=32)
         
@@ -115,9 +114,8 @@ class GameUI:
         self.images = images
         self.background = images.woodImage2
         self.menu_ui = None
+        self.game_logic = None
      
-        
-    
     def deleteCanvas(self):
 
         ''' The following also works
@@ -131,7 +129,13 @@ class GameUI:
         self.deleteCanvas()
         self.menu_ui.drawAndReact()
         
+    def initialSetup(self, mode):
+        self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
+        self.mode = mode
         
+        self.game_logic.boardSetUp()
+
+        self.drawAndReact()
 
     def drawAndReact(self):
         self.canvas.pack(fill="both", expand="True") 
@@ -147,21 +151,35 @@ class GameUI:
         
         # Create Tiles and disks
         tileSpacing = windowWidth/2/boardSize
-        tileWidth = tileSpacing - 4 
-        startPos = windowWidth/4 + tileWidth/2 + 2
-        
+        tileWidth = int(tileSpacing - 4) 
+        startPos = int(windowWidth/4 + tileWidth/2 + 2)
+        board = self.game_logic.board
+        pixel = tk.PhotoImage(width=tileWidth, height=tileWidth)
+        tempi = startPos
         for i in range(boardSize):
+            tempj = startPos    
             for j in range(boardSize):
-                button = tk.Button(root, image=self.images.whiteDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
-                ButtonWindow = self.canvas.create_window(startPos + j*tileSpacing, startPos + i*tileSpacing, window=button)
+                if board[i][j].color == "U":
+                    # use png to fix
+                    # when using images, width and height will be using pixel scale
+                    button = tk.Button(root, image=self.images.emptyPNG, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                
+                elif board[i][j].color == "W":                
+                    button = tk.Button(root, image=self.images.whiteDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+
+                else:
+                    button = tk.Button(root, image=self.images.blackDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                
+                # ButtonWindow = self.canvas.create_window(startPos + j*tileSpacing, startPos + i*tileSpacing, window=button)
+                ButtonWindow = self.canvas.create_window(tempj, tempi, window=button)
+                tempj += tileSpacing
+            tempi += tileSpacing
         
         '''
         testButton = tk.Button(root, image=self.images.blackDisk, bg='green', borderwidth=0, width=34, height = 34)
         testButtonWindow = self.canvas.create_window(windowWidth/2, windowHeight/2,  window=testButton)
         '''
 
-    def initialSetup(self):
-        self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
-        self.drawAndReact()
+    
 
 
