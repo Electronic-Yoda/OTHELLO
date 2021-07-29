@@ -1,4 +1,3 @@
-from tkinter.constants import ANCHOR, LEFT, RIGHT
 import math
 import sys, os
 import tkinter as tk
@@ -137,7 +136,9 @@ class GameUI:
 
         self.drawAndReact()
 
+        
     def drawAndReact(self):
+
         self.canvas.pack(fill="both", expand="True") 
         # Set image in canvas as background
         self.canvas.create_image(0, 0, image=self.background, anchor="nw")
@@ -162,23 +163,32 @@ class GameUI:
                 if board[i][j].color == "U":
                     # use png to fix
                     # when using images, width and height will be using pixel scale
-                    button = tk.Button(root, image=self.images.emptyPNG, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.emptyPNG, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
                 
                 elif board[i][j].color == "W":                
-                    button = tk.Button(root, image=self.images.whiteDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.whiteDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
 
                 else:
-                    button = tk.Button(root, image=self.images.blackDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.blackDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
                 
                 # ButtonWindow = self.canvas.create_window(startPos + j*tileSpacing, startPos + i*tileSpacing, window=button)
                 ButtonWindow = self.canvas.create_window(tempj, tempi, window=button)
                 tempj += tileSpacing
             tempi += tileSpacing
+
+
+    def tileClicked(self, i, j):
+        print((i,j))
+        # info = self.game_logic.getPlacementInfo(i, j, self.game_logic.thisTurnColor)
+        legal = False
+        if not legal:
+            return
+
+        if self.mode == "PVP":
+            pass
+        elif self.mode == "PVC":
+            pass
         
-        '''
-        testButton = tk.Button(root, image=self.images.blackDisk, bg='green', borderwidth=0, width=34, height = 34)
-        testButtonWindow = self.canvas.create_window(windowWidth/2, windowHeight/2,  window=testButton)
-        '''
 
     
 
