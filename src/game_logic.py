@@ -1,5 +1,4 @@
 
-from typing import Dict
 from gui import *
 
 class TileStatus:
@@ -24,7 +23,7 @@ class GameLogic:
         self.board[3][4].color = "W"
         self.board[4][4].color = "B"
 
-    def getPlacementInfo(self, i, j, color) -> dict:
+    def getPlacementInfo(self, i, j) -> dict:
         board = self.board
         info = dict({'legal': None, 'tileList': None, 'color': None})
 
@@ -52,7 +51,7 @@ class GameLogic:
 
                         
     
-    def directionInfo(self, i, j, delta_i, delta_j, color):
+    def directionInfo(self, i, j, delta_i, delta_j, color) -> dict:
         board = self.board
         dirInfo = dict({'legal': None, 'tileList': None})
 
@@ -92,7 +91,7 @@ class GameLogic:
         else:
             return False
 
-    def oppColor(self, color):
+    def oppColor(self, color) -> str:
         if color == 'B':
             return 'W'
         elif color == 'W':
