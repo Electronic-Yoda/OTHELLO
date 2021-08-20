@@ -1,4 +1,4 @@
-from src.add import *
+from src.add_test import *
 
 print (add(1, 2))
 

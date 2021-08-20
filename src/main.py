@@ -4,10 +4,9 @@ import math
 from game_logic import*
 from gui import *
 
-
 # -------- Main Program -----------
 def main():
-
+    # print("this file is located at:" + __file__)
     # Create an images object storing images from the subdirectory
     images = Images()
 

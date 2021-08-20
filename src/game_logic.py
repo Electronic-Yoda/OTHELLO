@@ -5,6 +5,7 @@ class TileStatus:
     def __init__(self) -> None:
         self.color = ""
         self.isLegal = False
+        self.highlight = False
     
 
 class GameLogic:
@@ -13,7 +14,7 @@ class GameLogic:
         self.thisTurnColor = None
     
     def boardSetUp(self):
-        self.thisTurnColor = 'Black'
+        self.thisTurnColor = 'B'
         for i in range(boardSize):
             for j in range(boardSize):
                 self.board[i][j].color = "U"
@@ -23,11 +24,10 @@ class GameLogic:
         self.board[3][4].color = "W"
         self.board[4][4].color = "B"
 
-    def getPlacementInfo(self, i, j) -> dict:
+    def getPlacementInfo(self, i, j, color) -> dict:
         board = self.board
-        info = dict({'legal': None, 'tileList': None, 'color': None})
+        info = dict({'legal': False, 'tileList': None, 'color': None})
 
-        color = self.thisTurnColor
         info['color'] = color
         info['tileList'] = []
         
@@ -38,22 +38,20 @@ class GameLogic:
         # Loop through each direction and get each direction's info
         for delta_i in range(-1,2):
             for delta_j in range(-1, 2):
-                if delta_i != 0 and delta_j != 0:
+                if not (delta_i == 0 and delta_j == 0):
                     # Call directionInfo
                     dirInfo = self.directionInfo(i, j, delta_i, delta_j, color)
                     if dirInfo['legal'] == True:
                         info['legal'] = True
-                        # Load tileList
-                        tileList = dirInfo['tileList']
-                        info['tileList'].append(tileList)
+                        # add tileList into existing list
+                        info['tileList'] = info['tileList'] + dirInfo['tileList']
         return info
 
 
-                        
-    
+                
     def directionInfo(self, i, j, delta_i, delta_j, color) -> dict:
         board = self.board
-        dirInfo = dict({'legal': None, 'tileList': None})
+        dirInfo = dict({'legal': False, 'tileList': None})
 
         # Check if first color beside is an opposite color
         cur_i = i + delta_i
@@ -98,3 +96,12 @@ class GameLogic:
             return 'B'
         else:
             print("oppColor Error")
+
+    def setBoardHighlights(self):
+        for i in range(boardSize):
+            for j in range(boardSize):
+                tileInfo = self.getPlacementInfo(i, j, self.thisTurnColor)
+                if tileInfo['legal'] == True:
+                    self.board[i][j].highlight = True
+            
+                

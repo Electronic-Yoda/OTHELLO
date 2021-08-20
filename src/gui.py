@@ -1,5 +1,5 @@
 import math
-import sys, os
+import os
 import tkinter as tk
 from PIL import Image
 from PIL import ImageTk
@@ -11,6 +11,7 @@ blueish = '#274098'
 darkGreyish='#797D7F'
 darkish = '#17202A'
 greyish = '#A69E99'
+lightGreen = '#C6DBAC'
 windowWidth = 800
 windowHeight = 800
 boardSize = 8
@@ -27,23 +28,25 @@ def clear_frame(frame):
 
 class Images():
     def __init__(self) -> None:
-        tempFilePath = os.path.abspath("Othello_AI")
-        # print("This is the file path:", tempFilePath)
+        thisFilePath = __file__
+        print("This is the file path:", thisFilePath)
 
-        OthelloAIPath = os.path.dirname(tempFilePath)
-        # print("This is the parent path:", OthelloAIPath)
+        parentPath = os.path.dirname(thisFilePath)
+        print("This is the parent path:", parentPath)
 
-        picsPath = OthelloAIPath + "\src\pics"
-        # print("This is the pics path:", picsPath)
+        picsPath = parentPath + "\\pics"
+        print("This is the pics path:", picsPath)
         picsPath = picsPath.replace("\\", "/") 
     
-        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/menuBackgroundS2.jpg"))
+        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/woodPaint5.jpg"))
         self.woodImage2 = ImageTk.PhotoImage(Image.open(picsPath + "/wood2-3.jpg"))
         
         diskWidth = int (windowWidth/2/boardSize-8)
         self.blackDisk = ImageTk.PhotoImage(Image.open(picsPath + "/blackCircle.png").resize((diskWidth,diskWidth)))
         self.whiteDisk = ImageTk.PhotoImage(Image.open(picsPath + "/whiteCircle.png").resize((diskWidth,diskWidth)))
         self.emptyPNG = ImageTk.PhotoImage(Image.open(picsPath + "/empty.png").resize((diskWidth,diskWidth)))
+
+        
 
 class MenuUI():
     def __init__(self, images) -> None:
@@ -114,6 +117,7 @@ class GameUI:
         self.background = images.woodImage2
         self.menu_ui = None
         self.game_logic = None
+        self.highlightOn = True
      
     def deleteCanvas(self):
 
@@ -150,6 +154,10 @@ class GameUI:
         frame = tk.Frame(root, bg="black", width=windowWidth/2 + 10, height=windowWidth/2 + 10, highlightthickness=4, highlightbackground=greyish)
         frameWindow = self.canvas.create_window(windowWidth/4 -5, windowHeight/4 -5, anchor="nw", window=frame)
         
+        # pre-calculate which tiles are to be highlighted, if the option is on
+        if (self.highlightOn):
+            self.game_logic.setBoardHighlights()
+
         # Create Tiles and disks
         tileSpacing = windowWidth/2/boardSize
         tileWidth = int(tileSpacing - 4) 
@@ -163,13 +171,16 @@ class GameUI:
                 if board[i][j].color == "U":
                     # use png to fix
                     # when using images, width and height will be using pixel scale
-                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.emptyPNG, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.emptyPNG, 
+                        bg='green' if board[i][j].highlight == False else lightGreen, borderwidth=0, width=tileWidth, height=tileWidth)
                 
                 elif board[i][j].color == "W":                
-                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.whiteDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.whiteDisk, 
+                        bg='green' if board[i][j].highlight == False else lightGreen, borderwidth=0, width=tileWidth, height=tileWidth)
 
                 else:
-                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.blackDisk, bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                    button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.blackDisk, 
+                        bg='green' if board[i][j].highlight == False else lightGreen, borderwidth=0, width=tileWidth, height=tileWidth)
                 
                 # ButtonWindow = self.canvas.create_window(startPos + j*tileSpacing, startPos + i*tileSpacing, window=button)
                 ButtonWindow = self.canvas.create_window(tempj, tempi, window=button)
@@ -179,7 +190,11 @@ class GameUI:
 
     def tileClicked(self, i, j):
         print((i,j))
-        # info = self.game_logic.getPlacementInfo(i, j, self.game_logic.thisTurnColor)
+        # load info about this placement including whether move is legal, the tiles that can be flipped,
+        # and the current turn's color (needed to set next turn's color, or not)
+
+        info = self.game_logic.getPlacementInfo(i, j, self.game_logic.thisTurnColor)
+        print(info)
         legal = False
         if not legal:
             return
