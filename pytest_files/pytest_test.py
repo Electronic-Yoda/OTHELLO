@@ -3,9 +3,10 @@
 import sys, os
 
 
-srcPath = os.path.abspath("src")
+filePath = __file__
+dirPath = os.path.dirname(filePath)
+srcPath = os.path.dirname(dirPath) + '\\src'
 sys.path.insert(1, srcPath) 
-print("This is the src path:", srcPath) 
 
 from add_test import *
 
