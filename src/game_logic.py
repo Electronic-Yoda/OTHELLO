@@ -1,11 +1,17 @@
 
-from gui import *
+from globals import *
 
 class TileStatus:
     def __init__(self) -> None:
         self.color = ""
         self.isLegal = False
         self.highlight = False
+
+    def getColor(self) -> str:
+        return self.color
+
+    def setColor(self, color): 
+        self.color = color
     
 
 class GameLogic:
@@ -17,15 +23,18 @@ class GameLogic:
         self.thisTurnColor = 'B'
         for i in range(boardSize):
             for j in range(boardSize):
-                self.board[i][j].color = "U"
+                self.board[i][j].setColor("U")
         
-        self.board[3][3].color = "B"
-        self.board[4][3].color = "W"
-        self.board[3][4].color = "W"
-        self.board[4][4].color = "B"
+        self.board[3][3].setColor("B") 
+        self.board[4][3].setColor("W")
+        self.board[3][4].setColor("W") 
+        self.board[4][4].setColor("B")
 
     def getPlacementInfo(self, i, j, color) -> dict:
         board = self.board
+
+        # Note the tileList index shall store a list of (i,j) pairs 
+        # of all the tiles that can be flipped
         info = dict({'legal': False, 'tileList': None, 'color': None})
 
         info['color'] = color
@@ -59,7 +68,7 @@ class GameLogic:
         if not self.inBounds(cur_i, cur_j):
             dirInfo['legal'] = False
             return dirInfo
-        if board[cur_i][cur_j].color != self.oppColor(color):
+        if board[cur_i][cur_j].getColor() != self.oppColor(color):
             dirInfo['legal'] = False
             return dirInfo
         
@@ -69,19 +78,18 @@ class GameLogic:
             if not self.inBounds(cur_i, cur_j):
                 dirInfo['legal'] = False
                 return dirInfo
-            if board[cur_i][cur_j].color == 'U':
+            if board[cur_i][cur_j].getColor() == 'U':
                 dirInfo['legal'] = False
                 return dirInfo
-
-            tileList.append((cur_i, cur_j))
-            if board[cur_i][cur_j].color == color:
+            if board[cur_i][cur_j].getColor() == color:
                 dirInfo['legal'] = True
                 dirInfo['tileList'] = tileList
                 return dirInfo
+            
+            tileList.append((cur_i, cur_j))
             cur_i += delta_i  
             cur_j += delta_j
             
-
                 
     def inBounds(self, i, j) -> bool:
         if 0 <= i and i < boardSize and 0 <= j and j < boardSize:
@@ -104,4 +112,17 @@ class GameLogic:
                 if tileInfo['legal'] == True:
                     self.board[i][j].highlight = True
             
-                
+    def countColors(self) -> dict:
+        board = self.board
+        colorInfo = dict({'black': 0, 'white': 0, 'empty': 0})
+        for i in range(boardSize):
+            for j in range(boardSize):
+                if (board[i][j].getColor() == 'B'):
+                    colorInfo['black'] += 1
+                elif (board[i][j].getColor() == 'W'):
+                    colorInfo['white'] += 1 
+                elif (board[i][j].getColor() == 'U'):
+                    colorInfo['empty'] += 1 
+        if (colorInfo['black'] + colorInfo['white'] + colorInfo['empty']) != boardSize*boardSize:
+            print("colorInfo function error: numbers don't add up")
+        return colorInfo

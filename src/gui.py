@@ -1,20 +1,10 @@
-import math
 import os
 import tkinter as tk
-from PIL import Image
-from PIL import ImageTk
+from PIL import Image, ImageTk
+from game_logic import GameLogic
+from globals import *
 
-# Global variables
-reddish = '#6E4137'
-yellowish = '#D1CFA6'
-blueish = '#274098'
-darkGreyish='#797D7F'
-darkish = '#17202A'
-greyish = '#A69E99'
-lightGreen = '#C6DBAC'
-windowWidth = 800
-windowHeight = 800
-boardSize = 8
+
 
 # Creating the root (window)
 root = tk.Tk()
@@ -110,14 +100,17 @@ class MenuUI():
         # pack image from label
         self.imgLabel.pack(pady=0, padx=0)
 
-class GameUI:
+class GameUI():
     def __init__(self, images) -> None:
         self.mode = ""  
         self.images = images
         self.background = images.woodImage2
         self.menu_ui = None
-        self.game_logic = None
         self.highlightOn = True
+        
+        # GameUi shall contain GameLogic class as a component (composition)
+        self.game_logic = GameLogic()
+
      
     def deleteCanvas(self):
 
@@ -135,21 +128,40 @@ class GameUI:
     def initialSetup(self, mode):
         self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
         self.mode = mode
-        
         self.game_logic.boardSetUp()
 
-        self.drawAndReact()
+        if (mode == 'PVP'):
+            self.drawAndReact()
+        elif (mode == 'PVC'):
+            self.PVPUserSetup()
 
-        
+    def PVPUserSetup(self):
+        self.canvas.pack(fill="both", expand="True") 
+        # Set image in canvas as background
+        self.canvas.create_image(0, 0, image=self.background, anchor="nw")
+
+        # Add UI Buttons
+        self.addButtons()
+
+
     def drawAndReact(self):
 
         self.canvas.pack(fill="both", expand="True") 
         # Set image in canvas as background
         self.canvas.create_image(0, 0, image=self.background, anchor="nw")
-        # Add buttons
+
+        # Add UI Buttons
+        self.addButtons()
+        
+        # Draw game board
+        self.drawBoard()
+    
+    def addButtons(self):
         menuButton = tk.Button(root, text = "Menu", command=self.returnToMenu)
         menuButtonWindow = self.canvas.create_window(10, 10, anchor="nw", window=menuButton)
         
+
+    def drawBoard(self):
         # Create frame for board
         frame = tk.Frame(root, bg="black", width=windowWidth/2 + 10, height=windowWidth/2 + 10, highlightthickness=4, highlightbackground=greyish)
         frameWindow = self.canvas.create_window(windowWidth/4 -5, windowHeight/4 -5, anchor="nw", window=frame)
@@ -187,7 +199,6 @@ class GameUI:
                 tempj += tileSpacing
             tempi += tileSpacing
 
-
     def tileClicked(self, i, j):
         print((i,j))
         # load info about this placement including whether move is legal, the tiles that can be flipped,
@@ -203,7 +214,7 @@ class GameUI:
             pass
         elif self.mode == "PVC":
             pass
-        
+    
 
     
 

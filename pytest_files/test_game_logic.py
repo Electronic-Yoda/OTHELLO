@@ -38,8 +38,9 @@ class gameLogicTest(GameLogic):
 def test_legality():
     test = gameLogicTest()
     test.importBoardFromExcel()
-    info = test.getPlacementInfo(0, 0, 'W')
-    print(info)
+    
+    print(test.getPlacementInfo(0, 0, 'W'))
+    print(test.countColors())
     # assert a == 1
 
 test_legality()
