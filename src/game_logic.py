@@ -12,12 +12,19 @@ class TileStatus:
 
     def setColor(self, color): 
         self.color = color
-    
+
+
+class PlacementInfo:
+    def __init__(self, infoDict) -> None:
+        self.legal = infoDict['legal']
+        self.tileList = infoDict['tileList']
+        
 
 class GameLogic:
     def __init__(self) -> None:
         self.board = [[TileStatus() for j in range(boardSize)] for i in range(boardSize)]
-        self.thisTurnColor = None
+        self.thisTurnColor = str()
+        self.colorInfo = dict()
     
     def boardSetUp(self):
         self.thisTurnColor = 'B'
@@ -30,15 +37,18 @@ class GameLogic:
         self.board[3][4].setColor("W") 
         self.board[4][4].setColor("B")
 
-    def getPlacementInfo(self, i, j, color) -> dict:
-        board = self.board
+        self.colorInfo = self.countColors(self.board)
+
+    def getPlacementInfo(self, board, i, j, color) -> PlacementInfo:
+        infoDict = self.getPlacementInfoDict(board, i, j, color)
+        return PlacementInfo(infoDict)
+        
+
+    def getPlacementInfoDict(self, board, i, j, color) -> dict:
 
         # Note the tileList index shall store a list of (i,j) pairs 
         # of all the tiles that can be flipped
-        info = dict({'legal': False, 'tileList': None, 'color': None})
-
-        info['color'] = color
-        info['tileList'] = []
+        info = dict({'legal': False, 'tileList': [], 'color': color})
         
         if board[i][j].color != "U":
             info['legal'] = False
@@ -49,7 +59,7 @@ class GameLogic:
             for delta_j in range(-1, 2):
                 if not (delta_i == 0 and delta_j == 0):
                     # Call directionInfo
-                    dirInfo = self.directionInfo(i, j, delta_i, delta_j, color)
+                    dirInfo = self.directionInfo(board, i, j, delta_i, delta_j, color)
                     if dirInfo['legal'] == True:
                         info['legal'] = True
                         # add tileList into existing list
@@ -58,9 +68,8 @@ class GameLogic:
 
 
                 
-    def directionInfo(self, i, j, delta_i, delta_j, color) -> dict:
-        board = self.board
-        dirInfo = dict({'legal': False, 'tileList': None})
+    def directionInfo(self, board, i, j, delta_i, delta_j, color) -> dict:
+        dirInfo = dict({'legal': False, 'tileList': []})
 
         # Check if first color beside is an opposite color
         cur_i = i + delta_i
@@ -108,12 +117,11 @@ class GameLogic:
     def setBoardHighlights(self):
         for i in range(boardSize):
             for j in range(boardSize):
-                tileInfo = self.getPlacementInfo(i, j, self.thisTurnColor)
-                if tileInfo['legal'] == True:
+                tileInfo = self.getPlacementInfo(self.board, i, j, self.thisTurnColor)
+                if tileInfo.legal == True:
                     self.board[i][j].highlight = True
             
-    def countColors(self) -> dict:
-        board = self.board
+    def countColors(self, board) -> dict:
         colorInfo = dict({'black': 0, 'white': 0, 'empty': 0})
         for i in range(boardSize):
             for j in range(boardSize):
@@ -126,3 +134,13 @@ class GameLogic:
         if (colorInfo['black'] + colorInfo['white'] + colorInfo['empty']) != boardSize*boardSize:
             print("colorInfo function error: numbers don't add up")
         return colorInfo
+    
+    def ActToTileClicked(self, i, j):
+        info = self.getPlacementInfo(self.board, i, j, self.thisTurnColor)
+        if info.legal == False:
+            return
+        
+
+    def actToMoveMade(self):
+        pass # need to check if game finished, if enemy can't make move, etc
+

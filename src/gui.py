@@ -203,7 +203,7 @@ class GameUI():
         print((i,j))
         # load info about this placement including whether move is legal, the tiles that can be flipped,
         # and the current turn's color (needed to set next turn's color, or not)
-
+        '''
         info = self.game_logic.getPlacementInfo(i, j, self.game_logic.thisTurnColor)
         print(info)
         legal = False
@@ -214,7 +214,7 @@ class GameUI():
             pass
         elif self.mode == "PVC":
             pass
-    
+        '''
 
     
 

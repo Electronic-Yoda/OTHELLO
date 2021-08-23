@@ -39,8 +39,15 @@ def test_legality():
     test = gameLogicTest()
     test.importBoardFromExcel()
     
-    print(test.getPlacementInfo(0, 0, 'W'))
-    print(test.countColors())
-    # assert a == 1
+    print(test.getPlacementInfoDict(test.board, 0, 0, 'W'))
+    print(test.countColors(test.board))
+    # assert... ==
 
 test_legality()
+
+
+# Example test
+from add_test import *
+
+def test_add():
+    assert add(4, 28) == 32
