@@ -39,12 +39,12 @@ class Images():
         
 
 class MenuUI():
-    def __init__(self, images) -> None:
+    def __init__(self, images : Images) -> None:
         
         self.images=images
         
-        # Create empty game UI
-        self.game_ui = None   
+        # Create reference to GameUI
+        self.game_ui : GameUI
 
         self.Frame = None
         self.imgLabel = None
@@ -108,8 +108,8 @@ class GameUI():
         self.menu_ui = None
         self.highlightOn = True
         
-        # GameUi shall contain GameLogic class as a component (composition)
-        self.game_logic = GameLogic()
+        # GameUi shall contain a reference to GameLogic
+        self.game_logic : GameLogic
 
      
     def deleteCanvas(self):
@@ -128,7 +128,7 @@ class GameUI():
     def initialSetup(self, mode):
         self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
         self.mode = mode
-        self.game_logic.boardSetUp()
+        self.game_logic.boardSetUp(mode)
 
         if (mode == 'PVP'):
             self.drawAndReact()

@@ -4,22 +4,23 @@ from gui import *
 
 # -------- Main Program -----------
 def main():
-    # print("this file is located at:" + __file__)
     # Create an images object storing images from the subdirectory
     images = Images()
 
-    # create UI objects
+    # create program objects
     menu_ui = MenuUI(images)
     game_ui = GameUI(images)
-
+    game_logic = GameLogic()
     
-    # Make UI objects point (have reference) to each other
+    # Make program objects point (have reference) to each other
     menu_ui.game_ui = game_ui
     game_ui.menu_ui = menu_ui
+    game_ui.game_logic = game_logic
+    
 
-    # The relationship between classes is as follows:
-        # MenuUI <-'reference'-> GameUI -'has'-> GameLogic 
-        #                           -'has'-> GameAI -'has or inherites from'-> GameLogic
+    # The relationship between program objects is as follows:
+        # MenuUI <--> GameUI --> GameLogic <--> GameAI
+                                
 
 
     # Draw menu 
