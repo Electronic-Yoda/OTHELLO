@@ -20,8 +20,8 @@ def main():
     # The relationship between program components is as follows:
         # MenuUI <--> GameUI -----> GameLogic 
         #                --> GameAI -->
-    # Draw menu 
-    menu_ui.drawAndReact() 
+    # show menu 
+    menu_ui.show() 
     
     
     root.mainloop()

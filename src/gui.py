@@ -65,6 +65,10 @@ class MenuUI():
         """
         self.button2 = tk.Button(self.frame, background=darkGreyish, foreground='white',text= PVP_text, font=('Arial', 12),
             width=25, pady=30, borderwidth=20, command=self.PvPButtonReact)
+        
+        self.button1.grid(row=0, column=0, padx=80)
+        
+        self.button2.grid(row=0, column=1, padx=32)
 
     def clearScreen(self):
         # Clear all the widgets in the frame
@@ -74,8 +78,8 @@ class MenuUI():
             # Clear the title picture
         self.imgLabel.pack_forget()
 
-        self.button1.grid_forget()
-        self.button1.grid_forget()
+        # self.button1.grid_forget()
+        # self.button1.grid_forget()
 
         # self.frame.destroy() 
         # self.imgLabel.destroy()
@@ -89,19 +93,9 @@ class MenuUI():
         self.game_ui.initialSetup("PVP")
 
 
-    def drawAndReact(self):
+    def show(self):
         # Pack the frame to the left
         self.frame.pack(side="bottom", fill = "x", padx=0) # , expand=True, fill="both" '''
-        
-        # Create a text label
-        '''label1 = tk.Label(self.frame,text="INSTRUCTIONS: Try to flip the opponent's tiles", font=('Helvetica',14))
-        label1.grid(row=0, column=0)'''
-        
-        self.button1.grid(row=0, column=0, padx=80)
-        
-        self.button2.grid(row=0, column=1, padx=32)
-        
-        # pack image from label
         self.imgLabel.pack(pady=0, padx=0)
 
 class GameUI():
@@ -127,16 +121,16 @@ class GameUI():
             # Set image in canvas as background
         self.background = self.canvas.create_image(0, 0, image=self.background, anchor="nw") 
 
-        menuButton = tk.Button(root, text = "Menu", command=self.returnToMenu, 
+        menuButton = tk.Button(self.canvas, text = "Menu", command=self.returnToMenu, 
             background=darkGreyish, foreground='white', font=('Fixedsys',10))
         self.menuButtonWindow = self.canvas.create_window(10, 10, anchor="nw", window=menuButton)
 
-        highLightButton = tk.Button(root, text = "Toggle Highlight", command=self.highlightButtonCallBack, 
+        highLightButton = tk.Button(self.canvas, text = "Toggle Highlight", command=self.highlightButtonCallBack, 
             background=darkGreyish, foreground='white', font=('Fixedsys',10))
         self.highlightButtonWindow = self.canvas.create_window(70, 10, anchor="nw", window=highLightButton)
 
         # board background
-        frame = tk.Frame(root, bg="black", width=windowWidth/2 + 18, height=windowWidth/2 + 18, highlightthickness=5, highlightbackground=greyish)
+        frame = tk.Frame(self.canvas, bg="black", width=windowWidth/2 + 18, height=windowWidth/2 + 18, highlightthickness=5, highlightbackground=greyish)
         frameWindow = self.canvas.create_window(windowWidth/4 - 9, windowHeight/4 - 9, anchor="nw", window=frame)
         
         # Empty board
@@ -147,7 +141,7 @@ class GameUI():
             for j in range(boardSize):
                 # use png for button without a disk
                 # when using images, width and height will be using pixel scale
-                button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.emptyPNG, 
+                button = tk.Button(self.canvas, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.emptyPNG, 
                     bg=self.tileColor, borderwidth=0, width=tileWidth, height=tileWidth)
                 self.uiBoard[i][j] = button
         
@@ -168,10 +162,8 @@ class GameUI():
         
 
     def returnToMenu(self):
-        # self.deleteCanvas()
         self.canvas.pack_forget()
-        self.forgetBoard()
-        self.menu_ui.drawAndReact()
+        self.menu_ui.show()
 
     def highlightButtonCallBack(self):
         if self.highlightOn:
