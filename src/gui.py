@@ -107,7 +107,8 @@ class MenuUI():
 class GameUI():
     # Static
     defaultHighlight = True
-    highlightColor = lightYellow
+    highlightColor = lightBlue2
+    tileColor = greenBlue
 
     def __init__(self, images:Images) -> None:
         # GameUi shall contain a reference to GameLogic
@@ -147,7 +148,7 @@ class GameUI():
                 # use png for button without a disk
                 # when using images, width and height will be using pixel scale
                 button = tk.Button(root, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.emptyPNG, 
-                    bg='green', borderwidth=0, width=tileWidth, height=tileWidth)
+                    bg=self.tileColor, borderwidth=0, width=tileWidth, height=tileWidth)
                 self.uiBoard[i][j] = button
         
 
@@ -235,15 +236,15 @@ class GameUI():
                     # use png to fix
                     # when using images, width and height will be using pixel scale
                     self.uiBoard[i][j].config(image=self.images.emptyPNG, 
-                        bg='green' if board[i][j].highlight == False else self.highlightColor)
+                        bg=self.tileColor if board[i][j].highlight == False else self.highlightColor)
                 
                 elif board[i][j].color == "W":                
                     self.uiBoard[i][j].config(image=self.images.whiteDisk, 
-                        bg='green' if board[i][j].highlight == False else self.highlightColor)
+                        bg=self.tileColor if board[i][j].highlight == False else self.highlightColor)
 
                 else:
                     self.uiBoard[i][j].config(image=self.images.blackDisk, 
-                        bg='green' if board[i][j].highlight == False else self.highlightColor)
+                        bg=self.tileColor if board[i][j].highlight == False else self.highlightColor)
                 
                 if self.firstTimeOpen:
                     self.uiBoard[i][j].place(x = tempj, y = tempi)
@@ -268,7 +269,7 @@ class GameUI():
         # Place disk        
         board = self.game_logic.board
         self.uiBoard[i][j].config(image=self.images.blackDisk if board[i][j].getColor() == 'B' else self.images.whiteDisk, 
-            bg='green')
+            bg=self.tileColor)
         # delay and then flip disks
         root.update_idletasks()
         root.after(200, self.drawChanges()) 
