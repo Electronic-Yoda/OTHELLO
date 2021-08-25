@@ -14,6 +14,7 @@ root.title('OTHELLO')
 root.geometry(str(windowWidth) + "x" + str(windowHeight))
 root['background'] = "black"
 
+
 def clear_frame(frame):
    for widgets in frame.winfo_children():
       widgets.destroy()
@@ -30,7 +31,7 @@ class Images():
         print("This is the pics path:", picsPath)
         picsPath = picsPath.replace("\\", "/") 
     
-        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/menuUIBackground.png"))
+        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/menuUIBackgroundBW.png"))
         self.woodImage2 = ImageTk.PhotoImage(Image.open(picsPath + "/wood2-3.jpg"))
         
         diskWidth = int (windowWidth/2/boardSize-8)
@@ -134,8 +135,8 @@ class GameUI():
         self.highlightButtonWindow = self.canvas.create_window(70, 10, anchor="nw", window=highLightButton)
 
         # board background
-        frame = tk.Frame(root, bg="black", width=windowWidth/2 + 12, height=windowWidth/2 + 12, highlightthickness=4, highlightbackground=greyish)
-        frameWindow = self.canvas.create_window(windowWidth/4 - 6, windowHeight/4 - 6, anchor="nw", window=frame)
+        frame = tk.Frame(root, bg="black", width=windowWidth/2 + 18, height=windowWidth/2 + 18, highlightthickness=5, highlightbackground=greyish)
+        frameWindow = self.canvas.create_window(windowWidth/4 - 9, windowHeight/4 - 9, anchor="nw", window=frame)
         
         # Empty board
         tileSpacing = windowWidth/2/boardSize
