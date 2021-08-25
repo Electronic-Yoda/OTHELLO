@@ -19,6 +19,7 @@ class PlacementInfo:
         self.legal = placementInfoDict['legal']
         self.tileList = placementInfoDict['tileList']
 
+
 class GameStatus:
     # static variables
     BOARDFULL = "board full"
@@ -35,8 +36,10 @@ class GameLogic:
         self.thisTurnColor = ""
         self.colorInfo = {}
         self.mode = ""
+        self.highlightOn = False
     
-    def boardSetUp(self, mode):
+
+    def boardSetUp(self, mode, highlightOn) -> GameStatus:
         self.thisTurnColor = 'B'
         for i in range(boardSize):
             for j in range(boardSize):
@@ -47,8 +50,13 @@ class GameLogic:
         self.board[3][4].setColor("W") 
         self.board[4][4].setColor("B")
 
-        self.colorInfo = self.countColors(self.board)
         self.mode = mode # Note mode = 'PVP' or 'PVC'
+        self.highlightOn = highlightOn
+        if self.highlightOn:
+            self.setBoardHighlights()
+
+        colorInfo = self.countColors(self.board)
+        return GameStatus(gameOver=False, gameOverReason=None, colorCount=colorInfo)
 
 
     def getPlacementInfo(self, board, i, j, color) -> PlacementInfo:
@@ -57,7 +65,6 @@ class GameLogic:
         
 
     def getPlacementInfoDict(self, board, i, j, color) -> dict:
-
         # Note the tileList index shall store a list of (i,j) pairs 
         # of all the tiles that can be flipped
         info = dict({'legal': False, 'tileList': [], 'color': color})
@@ -77,7 +84,6 @@ class GameLogic:
                         # add tileList into existing list
                         info['tileList'] = info['tileList'] + dirInfo['tileList']
         return info
-
 
                 
     def directionInfo(self, board, i, j, delta_i, delta_j, color) -> dict:
@@ -118,6 +124,7 @@ class GameLogic:
         else:
             return False
 
+
     def oppColor(self, color) -> str:
         if color == 'B':
             return 'W'
@@ -126,13 +133,21 @@ class GameLogic:
         else:
             print("oppColor Error")
 
+
     def setBoardHighlights(self):
         for i in range(boardSize):
             for j in range(boardSize):
                 tileInfo = self.getPlacementInfo(self.board, i, j, self.thisTurnColor)
+                self.board[i][j].highlight = False
                 if tileInfo.legal == True:
                     self.board[i][j].highlight = True
-            
+
+    def removeBoardHighlights(self):
+        for i in range(boardSize):
+            for j in range(boardSize):
+                self.board[i][j].highlight = False
+                
+
     def countColors(self, board) -> dict:
         colorInfo = dict({'black': 0, 'white': 0, 'empty': 0})
         for i in range(boardSize):
@@ -146,15 +161,20 @@ class GameLogic:
         if (colorInfo['black'] + colorInfo['white'] + colorInfo['empty']) != boardSize*boardSize:
             print("colorInfo function error: numbers don't add up")
         return colorInfo
-    
-    def newBoard(self, board, tileList, color) -> list:
+
+
+    def newBoard(self, board, i, j, tileList, color) -> list:
+        # Place the disk on the tile that is clicked on
+        board[i][j].setColor(color)
+
+        # Flip the disks that can be flipped 
         for loc in tileList:
             # Note loc[0] = i, loc[1] = j
             board[loc[0]][loc[1]].setColor(color)
         return board
         
 
-    def ActToTileClicked(self, i, j) -> tuple: 
+    def actToTileClicked(self, i, j) -> tuple: # moveMade, GameStatus
         curPlacementInfo = self.getPlacementInfo(self.board, i, j, self.thisTurnColor)
         game_status = GameStatus(gameOver=False, gameOverReason = None, colorCount={})
 
@@ -164,7 +184,7 @@ class GameLogic:
         
         # At this point, curPlacementInfo.legal == True
         # 1. Update the board
-        self.board = self.newBoard(self.board, curPlacementInfo.tileList, self.thisTurnColor)
+        self.board = self.newBoard(self.board, i, j, curPlacementInfo.tileList, self.thisTurnColor)
         moveMade = True
 
         # 2. Set turn color to opp color
@@ -173,13 +193,7 @@ class GameLogic:
         # 3. Check next move and update game_status
         game_status = self.checkNextMove(self.board, self.thisTurnColor)
         
-        if (self.mode == "PVP"):
-            return moveMade, game_status
-        
-        if (self.mode == "PVC"):
-            pass
-            # pass to AI
-            return moveMade, game_status
+        return moveMade, game_status
             
 
     def checkNextMove(self, board, turnColor) -> GameStatus:
@@ -205,7 +219,7 @@ class GameLogic:
                 board[i][j].highlight = False # Need to set to False first
                 if placement.legal == True:
                     canMakeMove = True
-                    board[i][j].highlight = True 
+                    board[i][j].highlight = True if self.highlightOn else False
 
         game_status.colorCount = colorInfo
         if colorInfo['empty'] == 0: # board full
@@ -220,5 +234,4 @@ class GameLogic:
         
 
 
-    def PVC_ActToMoveMade(self) -> dict:
-        pass
+

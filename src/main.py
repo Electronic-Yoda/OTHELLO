@@ -16,13 +16,10 @@ def main():
     menu_ui.game_ui = game_ui
     game_ui.menu_ui = menu_ui
     game_ui.game_logic = game_logic
-    
 
-    # The relationship between program objects is as follows:
-        # MenuUI <--> GameUI --> GameLogic <--> GameAI
-                                
-
-
+    # The relationship between program components is as follows:
+        # MenuUI <--> GameUI -----> GameLogic 
+        #                --> GameAI -->
     # Draw menu 
     menu_ui.drawAndReact() 
     
