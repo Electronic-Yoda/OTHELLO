@@ -30,7 +30,7 @@ class Images():
         print("This is the pics path:", picsPath)
         picsPath = picsPath.replace("\\", "/") 
     
-        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/woodPaint5.jpg"))
+        self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/menuUIBackground.png"))
         self.woodImage2 = ImageTk.PhotoImage(Image.open(picsPath + "/wood2-3.jpg"))
         
         diskWidth = int (windowWidth/2/boardSize-8)
