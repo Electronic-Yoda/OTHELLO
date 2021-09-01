@@ -10,27 +10,33 @@ import time
 
 # Creating the root (window)
 root = tk.Tk()
-root.title('OTHELLO')
-root.geometry(str(windowWidth) + "x" + str(windowHeight))
-root['background'] = "black"
-
 
 def clear_frame(frame):
    for widgets in frame.winfo_children():
       widgets.destroy()
 
+def create_circle(canvasName,x, y, r, outline, fill, width = 1):
+    x0 = x - r
+    y0 = y - r
+    x1 = x + r
+    y1 = y + r
+    return canvasName.create_oval(x0, y0, x1, y1, outline=outline, fill=fill, width=width)
+
+
+
 class Images():
     def __init__(self) -> None:
         thisFilePath = __file__
-        print("This is the file path:", thisFilePath)
+        # print("This is the file path:", thisFilePath)
 
         parentPath = os.path.dirname(thisFilePath)
-        print("This is the parent path:", parentPath)
+        # print("This is the parent path:", parentPath)
 
         picsPath = parentPath + "\\pics"
-        print("This is the pics path:", picsPath)
+        # print("This is the pics path:", picsPath)
         picsPath = picsPath.replace("\\", "/") 
-    
+
+        self.picsPathFSlash = picsPath
         self.woodImage = ImageTk.PhotoImage(Image.open(picsPath + "/menuUIBackgroundBW.png"))
         self.woodImage2 = ImageTk.PhotoImage(Image.open(picsPath + "/wood2-3.jpg"))
         
@@ -38,8 +44,11 @@ class Images():
         self.blackDisk = ImageTk.PhotoImage(Image.open(picsPath + "/blackCircle.png").resize((diskWidth,diskWidth)))
         self.whiteDisk = ImageTk.PhotoImage(Image.open(picsPath + "/whiteCircle.png").resize((diskWidth,diskWidth)))
         self.emptyPNG = ImageTk.PhotoImage(Image.open(picsPath + "/empty.png").resize((diskWidth,diskWidth)))
+        self.blackDiskLarge = ImageTk.PhotoImage(Image.open(picsPath + "/blackCircle.png").resize((100,100)))
+        self.whiteDiskLarge = ImageTk.PhotoImage(Image.open(picsPath + "/whiteCircle.png").resize((100,100)))
+        self.blackDiskMedium = ImageTk.PhotoImage(Image.open(picsPath + "/whiteCircle.png").resize((70,70)))
+        self.whiteDiskMedium = ImageTk.PhotoImage(Image.open(picsPath + "/whiteCircle.png").resize((70,70)))
 
-        
 
 class MenuUI():
     def __init__(self, images : Images) -> None:
@@ -103,6 +112,7 @@ class GameUI():
     defaultHighlight = True
     highlightColor = lightBlue2
     tileColor = greenBlue
+    colorCountHighlight = orangeish
 
     def __init__(self, images:Images) -> None:
         # GameUi shall contain a reference to GameLogic
@@ -120,7 +130,7 @@ class GameUI():
         self.canvas = tk.Canvas(root, borderwidth=0, highlightthickness=0)
             # Set image in canvas as background
         self.background = self.canvas.create_image(0, 0, image=self.background, anchor="nw") 
-
+        
         menuButton = tk.Button(self.canvas, text = "Menu", command=self.returnToMenu, 
             background=darkGreyish, foreground='white', font=('Fixedsys',10))
         self.menuButtonWindow = self.canvas.create_window(10, 10, anchor="nw", window=menuButton)
@@ -144,8 +154,27 @@ class GameUI():
                 button = tk.Button(self.canvas, command=lambda i=i, j=j: self.tileClicked(i, j), image=self.images.emptyPNG, 
                     bg=self.tileColor, borderwidth=0, width=tileWidth, height=tileWidth)
                 self.uiBoard[i][j] = button
+
+        # Color info
+        whiteCountLocX = windowWidth/4-50
+        whiteCountLocY = windowHeight - 100
+        blackCountLocX = windowWidth*3/4+50
+        blackCountLocY = whiteCountLocY
+        self.canvas.create_image(whiteCountLocX, whiteCountLocY, image = self.images.whiteDiskLarge)
+        self.whiteCountHighlight = create_circle(self.canvas, windowWidth/4-50, windowHeight - 100, r=50, outline='orange', width=2, fill='') 
+        self.canvas.create_image(blackCountLocX, blackCountLocY, image = self.images.blackDiskLarge)
+        self.blackCountHighlight = create_circle(self.canvas, blackCountLocX, blackCountLocY, r=50, outline=self.colorCountHighlight, fill='') 
         
 
+        self.whiteCount = tk.Label(self.canvas, text="", bg=almostWhite, font=('Fixedsys',17))
+        self.blackCount = tk.Label(self.canvas, text="", bg='black', foreground='white', font=('Fixedsys',17))
+        self.whiteCount.place(x=whiteCountLocX, y=whiteCountLocY, anchor="center")
+        self.blackCount.place(x=blackCountLocX, y=blackCountLocY, anchor="center")
+
+        # Turn info (currently unused)
+        # self.whiteTurn = self.canvas.create_text(whiteCountLocX, whiteCountLocY-70, text="Turn", fill='grey', font=('Fixedsys',17))
+        # self.blackTurn = self.canvas.create_text(blackCountLocX, blackCountLocY-70, text="Turn", fill='white', font=('Fixedsys',17))
+    
     def forgetBoard(self):
         for i in range(boardSize):
             for j in range(boardSize):
@@ -170,13 +199,13 @@ class GameUI():
             self.game_logic.removeBoardHighlights()
             self.highlightOn = False
             self.game_logic.highlightOn = False
-            self.drawChanges()
+            self.changeBoardAndInfo()
             return
         else:
             self.game_logic.setBoardHighlights()
             self.highlightOn = True
             self.game_logic.highlightOn = True
-            self.drawChanges()
+            self.changeBoardAndInfo()
             return
 
         
@@ -193,14 +222,23 @@ class GameUI():
 
     def PVPUserSetup(self):
         self.canvas.pack(fill="both", expand="True") 
-        self.drawChanges()
+        self.canvas.itemconfig(self.whiteCountHighlight, state='hidden')
+
+        self.changeBoardAndInfo()
 
     def PVCUserSetup(self):
         pass
 
-    def drawChanges(self):
+    def changeBoardAndInfo(self):
         # Draw color count
-
+        self.whiteCount.config(text=str(self.game_status.colorCount['white']))
+        self.blackCount.config(text=str(self.game_status.colorCount['black']))
+        if self.game_logic.thisTurnColor == 'B':
+            self.canvas.itemconfig(self.blackCountHighlight, state='normal')
+            self.canvas.itemconfig(self.whiteCountHighlight, state='hidden')
+        else:
+            self.canvas.itemconfig(self.blackCountHighlight, state='hidden')
+            self.canvas.itemconfig(self.whiteCountHighlight, state='normal')
         # Draw whose move
 
         # Draw game board
@@ -251,20 +289,31 @@ class GameUI():
         print((i,j))
         # load info about this placement including whether move is legal, the tiles that can be flipped,
         # and the current turn's color (needed to set next turn's color, or not)
+        curColor = self.game_logic.thisTurnColor
+        moveMade, game_status = self.game_logic.actToTileClicked(i, j)
+        self.game_status = game_status
         
-        moveMade, self.game_status = self.game_logic.actToTileClicked(i, j)
-
         if not moveMade:
             return
         
-        # Otherwise, a move has been made
+        # Otherwise, a move has been made in gamelogic
         # Place disk        
         board = self.game_logic.board
         self.uiBoard[i][j].config(image=self.images.blackDisk if board[i][j].getColor() == 'B' else self.images.whiteDisk, 
             bg=self.tileColor)
-        # delay and then flip disks
         root.update_idletasks()
-        root.after(200, self.drawChanges()) 
+        # delay and then flip disks
+        root.after(200, self.changeBoardAndInfo())    
+        
+        # Act if enemy can't make moves or game over
+        if game_status.gameOver:
+            self.gameOverScreen()
+        
+        if curColor == game_status.thisTurnColor:
+            # This means enemy cannot make a move, and the current player must keep playing
+            pass
+
+
         
         if self.mode == "PVP":
             return    
@@ -276,4 +325,9 @@ class GameUI():
             # use timer for delay
             pass
         
-
+    def gameOverScreen(self):
+        game_status = self.game_status
+        if game_status.gameOverReason == game_status.NOMOVES:
+            pass
+        if game_status.gameOverReason == game_status.BOARDFULL:
+            pass

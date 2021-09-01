@@ -22,8 +22,11 @@ def main():
         #                --> GameAI -->
     # show menu 
     menu_ui.show() 
-    
-    
+
+    root.title('OTHELLO')
+    root.geometry(str(windowWidth) + "x" + str(windowHeight))
+    root['background'] = "black"
+    root.iconbitmap(default=images.picsPathFSlash + '/icon.ico')
     root.mainloop()
     
 if __name__ == "__main__":

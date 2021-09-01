@@ -1,4 +1,5 @@
 
+from typing import Tuple, Union
 from globals import *
 
 class TileStatus:
@@ -24,10 +25,11 @@ class GameStatus:
     # static variables
     BOARDFULL = "board full"
     NOMOVES = "no moves"
-    def __init__(self, gameOver = False, gameOverReason = None, colorCount = {}) -> None:
+    def __init__(self, gameOver = False, gameOverReason = None, colorCount = {}, thisTurnColor = "") -> None:
         self.gameOver = gameOver
         self.gameOverReason = gameOverReason
         self.colorCount = colorCount
+        self.thisTurnColor = thisTurnColor
 
         
 class GameLogic:
@@ -174,9 +176,9 @@ class GameLogic:
         return board
         
 
-    def actToTileClicked(self, i, j) -> tuple: # moveMade, GameStatus
+    def actToTileClicked(self, i, j) -> Tuple[bool, GameStatus]: # moveMade, GameStatus
         curPlacementInfo = self.getPlacementInfo(self.board, i, j, self.thisTurnColor)
-        game_status = GameStatus(gameOver=False, gameOverReason = None, colorCount={})
+        game_status = GameStatus(gameOver=False, gameOverReason = None, colorCount={}, thisTurnColor=self.thisTurnColor)
 
         if curPlacementInfo.legal == False:
             moveMade = False
@@ -187,23 +189,25 @@ class GameLogic:
         self.board = self.newBoard(self.board, i, j, curPlacementInfo.tileList, self.thisTurnColor)
         moveMade = True
 
-        # 2. Set turn color to opp color
-        self.thisTurnColor = self.oppColor(self.thisTurnColor)
-
-        # 3. Check next move and update game_status
-        game_status = self.checkNextMove(self.board, self.thisTurnColor)
+        # 2. Check next move and update game_status
+        game_status = self.checkNextMove(self.board, self.oppColor(self.thisTurnColor), self.highlightOn)
         
+        # 3. If game not over, Set turn color to the color for the next turn
+                # Note: could be either color, because if enemy cannot make move,
+                # the current player must continue playing if they can make a move
+        if not game_status.gameOver:
+            self.thisTurnColor = game_status.thisTurnColor
         return moveMade, game_status
             
 
-    def checkNextMove(self, board, turnColor) -> GameStatus:
+    def checkNextMove(self, board, turnColor, highlightOn) -> GameStatus:
         # 1. Need to check if gameOver 
             # two possibilities for gameOver:
                 # board full (check using color count)
-                # if other side can't make move
+                # if no more moves can be made even if the turn is passed to original player
         # 2. set highlights
         # 3. return game_status
-        game_status = GameStatus()
+        game_status = GameStatus(gameOver=False, gameOverReason = None, colorCount={}, thisTurnColor=turnColor)
         colorInfo = {'black': 0, 'white': 0, 'empty': 0}
         canMakeMove = False
         for i in range(boardSize):
@@ -216,10 +220,11 @@ class GameLogic:
                     colorInfo['empty'] += 1 
 
                 placement = self.getPlacementInfo(self.board, i, j, turnColor)
-                board[i][j].highlight = False # Need to set to False first
+                if highlightOn: 
+                    board[i][j].highlight = False # Need to set to False first
                 if placement.legal == True:
                     canMakeMove = True
-                    board[i][j].highlight = True if self.highlightOn else False
+                    board[i][j].highlight = True if highlightOn else False
 
         game_status.colorCount = colorInfo
         if colorInfo['empty'] == 0: # board full
@@ -227,9 +232,27 @@ class GameLogic:
             game_status.gameOverReason = game_status.BOARDFULL
             return game_status
         if canMakeMove == False:
-            game_status.gameOver = True
-            game_status.gameOverReason = game_status.NOMOVES
+            # nextPlacement = self.getPlacementInfo(self.board, i, j, self.oppColor(turnColor))
+            nextIsLegal = False
+            for i in range(boardSize):
+                for j in range(boardSize):
+                    nextPlacement = self.getPlacementInfo(self.board, i, j, self.oppColor(turnColor))
+                    if nextPlacement.legal:
+                        nextIsLegal = True
+            if nextIsLegal == False:
+                game_status.gameOver = True
+                game_status.gameOverReason = game_status.NOMOVES
+                return game_status
+            else: # nextIsLegal == True
+                # pass turn to original player
+                # since this player cannot make move but original can
+                game_status.thisTurnColor = self.oppColor(turnColor)
+                return game_status
+        else: # this turn's player can make move
             return game_status
+
+
+
         
         
 
